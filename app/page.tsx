@@ -118,41 +118,12 @@ export default function ReceiptScanner() {
             mediaType = 'image/gif';
           }
 
-          const response = await fetch('https://api.anthropic.com/v1/messages', {
+          const response = await fetch('/api/process-receipt', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              model: 'claude-sonnet-4-6',
-              max_tokens: 500,
-              messages: [
-                {
-                  role: 'user',
-                  content: [
-                    {
-                      type: 'image',
-                      source: {
-                        type: 'base64',
-                        media_type: mediaType,
-                        data: base64Image,
-                      },
-                    },
-                    {
-                      type: 'text',
-                      text: `Extract the following from this receipt and respond ONLY with valid JSON:
-                      - total_amount (the final total, as a number)
-                      - merchant (store/restaurant name)
-                      - date (if visible, otherwise today's date in YYYY-MM-DD format)
-
-                      Example: {"total_amount": 42.50, "merchant": "Whole Foods", "date": "2024-01-15"}
-
-                      If you cannot read the receipt, return: {"error": "Could not read receipt"}`,
-                    },
-                  ],
-                },
-              ],
-            }),
+            body: JSON.stringify({ base64Image, mediaType }),
           });
 
           const data = await response.json();
